@@ -1,0 +1,115 @@
+#!/usr/bin/ruby --disable-gems
+
+require 'net/http'
+require 'cgi'
+require 'json'
+require 'open3'
+require 'fileutils'
+
+DEST = '/tmp/octobox-notifications'
+
+def fail(msg)
+  File.write(DEST, msg)
+  STDERR.write(msg)
+  exit 1
+end
+
+token, _, t = Open3.capture3(
+  'security',
+  'find-generic-password',
+  '-w', # print only the password
+  '-l', 'octobox-token' 
+)
+fail '?/0' unless t.success?
+
+#cookie, _, t = Open3.capture3(
+  #'security',
+  #'find-generic-password',
+  #'-w', # print only the password
+  #'-l', 'octobox-cookie' 
+#)
+#fail '?/8' unless t.success?
+
+auth = {
+  'Authorization' => 'Bearer ' + token.strip,
+  # 'Cookie' => cookie.strip,
+}
+
+PR = "\u{e726}"
+ISSUE = "\u{f41b}"
+ISSUE_CLOSED = "\u{f41d}"
+
+def colour(which, lra, urgent)
+  case which
+  when 'merged'
+    urgent ? 129 : 54
+  when 'open'
+    urgent ? (lra ? 28 : 34) : 22
+  else # 'closed'
+    urgent ? 196 : 88
+  end
+end
+
+Net::HTTP.start('octobox.shopify.io', 443, use_ssl: true) do |http|
+  resp = http.get('/', auth)
+  fail '?/1' unless resp.code.to_i == 200
+
+  pat = /<meta name="csrf-token" content="([^"]+)"/
+  unescaped = resp.body.scan(pat).flatten.first 
+  fail '?/2' unless unescaped
+
+  qs = "authenticity_token=#{CGI.escape(unescaped)}"
+  resp = http.get('/notifications/sync?'+qs, auth)
+  fail '?/3' unless resp.code.to_i == 302
+
+  resp = http.get('/notifications.json', auth)
+  fail '?/4' unless resp.code.to_i == 200
+
+  html = http.get('/', auth)
+  fail '?/5' unless resp.code.to_i == 200
+
+  data = JSON.parse(resp.body)
+
+  urgent_reasons = %w(author review_requested mention)
+
+  items = []
+
+  notifications = data.fetch('notifications')
+  File.write("/tmp/octobox", notifications.to_json)
+  other_count = 0
+
+  notifications.each do |ntf|
+    next unless ntf.fetch('unread')
+    type = ntf.fetch('subject').fetch('type')
+    state = ntf.fetch('subject').fetch('state')
+    title = ntf.fetch('subject').fetch('title')
+
+    reason = ntf.fetch('reason')
+    urgent = urgent_reasons.include?(reason)
+
+    urgent = false if title =~ /\bwip\b/i || title.include?("\u{1f6a7}")
+
+    lra = ntf.fetch('last_read_at')
+
+    icon = case type
+    when 'Issue'
+      other_count += 1
+      next
+    when 'PullRequest'
+      if state.downcase == 'merged' || state.downcase == 'closed'
+        other_count += 1
+        next
+      else
+        PR
+      end
+    else
+      '?'
+    end
+
+    c = colour(state, lra, urgent)
+
+    items << "#[fg=colour#{c}]#{icon}"
+  end
+
+  File.write(DEST, "#{other_count}/#{items.any? ? items.join(' ') : '∅'}")
+end

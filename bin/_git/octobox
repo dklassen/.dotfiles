@@ -1,0 +1,107 @@
+#!/usr/bin/ruby --disable-gems
+
+require 'json'
+require 'readline'
+require 'open3'
+require 'net/http'
+
+data = JSON.load(File.read('/tmp/octobox'))
+
+def remove_id(id)
+  data = JSON.load(File.read('/tmp/octobox'))
+  data.reject! { |f| f['id'] == id }
+  File.write('/tmp/octobox', JSON.dump(data))
+end
+
+def colour(which, urgent)
+  case which
+  when 'merged'
+    urgent ? 129 : 54
+  when 'open'
+    urgent ? 34 : 22
+  else # 'closed'
+    urgent ? 196 : 88
+  end
+end
+
+PR = "\u{e726}"
+ISSUE = "\u{f41b}"
+ISSUE_CLOSED = "\u{f41d}"
+
+urgent_reasons = %w(author review_requested mention)
+
+token, _, t = Open3.capture3('security', 'find-generic-password', '-w', '-l', 'octobox-token')
+fail 'Cannot retrieve token' unless t.success?
+
+markread = ->(id) {
+notifications = Net::HTTP.start('octobox.shopify.io', 443, use_ssl: true) do |http|
+  resp = http.post("/notifications/#{id}/mark_read.json", "", 'Authorization' => "Bearer #{token}", "X-Octobox-API" => "1")
+  fail "Cannot access octobox: #{resp}" unless resp.code.to_i == 200
+end
+}
+
+
+printall=->(){
+data.each.with_index do |ntf, index|
+  next if ntf.nil?
+  next unless ntf.fetch('unread') or ntf.fetch('starred')
+
+  type = ntf.fetch('subject').fetch('type')
+  state = ntf.fetch('subject').fetch('state')
+  created_at = ntf.fetch('created_at')
+
+  reason = ntf.fetch('reason')
+  urgent = urgent_reasons.include?(reason)
+
+  icon = case type
+  when 'Issue'
+    state == 'closed' ? ISSUE_CLOSED : ISSUE
+  when 'PullRequest'
+    PR
+  else
+    '?'
+  end
+
+  c = colour(state, urgent)
+
+  id = ntf.fetch('web_url').split('/').last.sub(/#.*/, '')
+  slug = "#{ntf.fetch('repo').fetch('name')}##{id}".sub(/^Shopify/, 'S').sub(/^burke/, 'b')
+  title = ntf.fetch('subject').fetch('title')
+  puts "#{index}. #{created_at} \x1b[38;5;#{c}m#{icon}\x1b[0m \x1b[3m#{slug}\x1b[0m :: #{title}"
+end
+}
+
+open_index = ->(n) {
+  web_url = data[n].fetch('web_url')
+  id = data[n].fetch('id')
+  data[n] = nil
+  remove_id(id)
+  markread.(id)
+  # -g seems to not work with chrome :(
+  system('open', '-jgb', 'com.google.Chrome', web_url)
+}
+
+printall.()
+
+while buf = Readline.readline("> ", true)
+  case buf
+  when /^o\*/
+    data.each.with_index do |ntf, i|
+      next if ntf.nil?
+      next unless ntf.fetch('unread')
+      open_index.(i)
+    end
+  when /^o /
+    args = buf.split(' ')
+    args.shift
+    args.each do |arg|
+      index = arg.to_i
+      open_index.(index)
+    end
+  when /^p/
+    printall.()
+  when /^q/
+    break
+  end
+
+end

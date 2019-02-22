@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ "check" == "$1" ]; then
+  echo "Checking branches we should delete:"
+  git branch --merged | grep -v '*' | grep -v 'master' 
+else
+  git branch --merged | grep -v '*' | grep -v 'master' | xargs -n 1 git branch -d
+fi
+
