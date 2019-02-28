@@ -2,3 +2,5 @@
 
 !/.gitignore
 !/bin/_git
+!.zshrc
+!.zshenv
