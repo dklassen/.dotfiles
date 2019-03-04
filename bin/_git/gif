@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Creates a gif from an input mov file like a screen cast
+input="$1"
+filename=$(echo "$1" | cut -f 1 -d '.')
+ffmpeg -i "$input"  -filter_complex "fps=10" "$filename.gif"
