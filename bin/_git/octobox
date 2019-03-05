@@ -5,7 +5,7 @@ require 'readline'
 require 'open3'
 require 'net/http'
 
-data = JSON.load(File.read('/tmp/octobox'))
+data = JSON.load(File.read('/tmp/octobox')).sort_by { |k| k["created_at"] }
 
 def remove_id(id)
   data = JSON.load(File.read('/tmp/octobox'))
