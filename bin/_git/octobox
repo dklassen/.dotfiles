@@ -77,8 +77,7 @@ open_index = ->(n) {
   data[n] = nil
   remove_id(id)
   markread.(id)
-  # -g seems to not work with chrome :(
-  system('open', '-jgb', 'com.google.Chrome', web_url)
+  system('open', '-jb', 'org.mozilla.firefox', web_url)
 }
 
 printall.()
