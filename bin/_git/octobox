@@ -90,6 +90,16 @@ while buf = Readline.readline("> ", true)
       next unless ntf.fetch('unread')
       open_index.(i)
     end
+  when /^r /
+    args = buf.split(' ')
+    args.shift
+    args.each do |arg|
+      index = arg.to_i
+      id = data[index].fetch('id')
+      remove_id(id)
+      markread.(id)
+      data[index] = nil
+    end
   when /^o /
     args = buf.split(' ')
     args.shift
