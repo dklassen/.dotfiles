@@ -35,7 +35,7 @@ fail 'Cannot retrieve token' unless t.success?
 
 markread = ->(id) {
 notifications = Net::HTTP.start('octobox.shopify.io', 443, use_ssl: true) do |http|
-  resp = http.post("/notifications/#{id}/mark_read.json", "", 'Authorization' => "Bearer #{token}", "X-Octobox-API" => "1")
+  resp = http.post("/notifications/mark_read_selected.json?id=#{id}", "", 'Authorization' => "Bearer #{token}", "X-Octobox-API" => "1")
   fail "Cannot access octobox: #{resp}" unless resp.code.to_i == 200
 end
 }
