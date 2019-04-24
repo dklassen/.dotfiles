@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+git reflog | grep -E -io "moving from ([^[:space:]]+)" | awk '{ print $3 }' | awk ' !x[$0]++' | head -n20 | fzf --preview="git show --color {}" --no-multi | xargs --no-run-if-empty git checkout

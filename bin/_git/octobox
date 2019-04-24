@@ -40,8 +40,8 @@ notifications = Net::HTTP.start('octobox.shopify.io', 443, use_ssl: true) do |ht
 end
 }
 
-
 printall=->(){
+data = JSON.load(File.read('/tmp/octobox')).sort_by { |k| k["created_at"] }
 data.each.with_index do |ntf, index|
   next if ntf.nil?
   next unless ntf.fetch('unread') or ntf.fetch('starred')
@@ -112,5 +112,4 @@ while buf = Readline.readline("> ", true)
   when /^q/
     break
   end
-
 end

@@ -22,17 +22,8 @@ token, _, t = Open3.capture3(
 )
 fail '?/0' unless t.success?
 
-#cookie, _, t = Open3.capture3(
-  #'security',
-  #'find-generic-password',
-  #'-w', # print only the password
-  #'-l', 'octobox-cookie' 
-#)
-#fail '?/8' unless t.success?
-
 auth = {
   'Authorization' => 'Bearer ' + token.strip,
-  # 'Cookie' => cookie.strip,
 }
 
 PR = "\u{e726}"
