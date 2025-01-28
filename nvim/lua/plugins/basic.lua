@@ -13,6 +13,16 @@ return {
 		end,
 	},
 	'junegunn/fzf.vim',
+	{
+		'preservim/nerdtree',
+                cmd = { "NERDTreeToggle", "NERDTreeFocus", "NERDTreeFind", "NERDTree" }, -- Lazy load commands
+		keys = { -- Key mappings for NERDTree
+		    { "<leader>n", ":NERDTreeFocus<CR>", desc = "Focus NERDTree" },
+		    { "<C-n>", ":NERDTree<CR>", desc = "Open NERDTree" },
+		    { "<C-t>", ":NERDTreeToggle<CR>", desc = "Toggle NERDTree" },
+		    { "<C-f>", ":NERDTreeFind<CR>", desc = "Find current file in NERDTree" },
+		},
+	},
 	'williamboman/mason.nvim',
 	'williamboman/mason-lspconfig.nvim',
 	'junegunn/vim-easy-align',
