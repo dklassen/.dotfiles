@@ -121,7 +121,30 @@ require("mason").setup({
     }
 })
 
-require("mason-lspconfig").setup()
+require("mason-lspconfig").setup({
+    ensure_installed = { "ts_ls" }
+})
+
+local lspconfig = require("lspconfig")
+lspconfig.ts_ls.setup({
+    settings = {
+        typescript = {
+            format = { enable = false }, -- Prevents tsserver from formatting (we'll use Prettier)
+        },
+    },
+})
 
 
 vim.api.nvim_set_keymap('n', '<Leader>c', '<Plug>RestNvim', { noremap = false, silent = true })
+
+local null_ls = require("null-ls")
+
+null_ls.setup({
+    sources = {
+	null_ls.builtins.diagnostics.eslint_d,
+        null_ls.builtins.formatting.prettier, -- Enables Prettier formatting
+    },
+})
+
+vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<leader>p", ":lua vim.lsp.buf.format()<CR>", { noremap = true, silent = true })

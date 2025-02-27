@@ -1,4 +1,5 @@
 return {
+	'godlygeek/tabular',
 	'junegunn/fzf',
 	{
 		'joshdick/onedark.vim',
