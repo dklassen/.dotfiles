@@ -43,12 +43,11 @@ install_brew_package zsh-autosuggestions
 install_brew_package zsh-syntax-highlighting
 install_brew_package zsh-autocomplete
 
-echo "Installing neovim files"
 cp -R nvim/  ~/.config/nvim
 
 cp .zshrc ~/.zshrc
 
-cp -R bin/ ~/.bin
+cp -R bin/ ~/bin
 
 
 
