@@ -35,9 +35,13 @@ eval "$(/opt/homebrew/bin/brew shellenv)" 2>/dev/null || true
 
 brew update
 
+install_brew_package neovim
 install_brew_package tig
 install_brew_package ripgrep
 install_brew_package fd
+install_brew_package zsh-autosuggestions
+install_brew_package zsh-syntax-highlighting
+install_brew_package zsh-autocomplete
 
 echo "Installing neovim files"
 cp -R nvim/  ~/.config/nvim
