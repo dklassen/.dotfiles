@@ -134,6 +134,26 @@ lspconfig.ts_ls.setup({
     },
 })
 
+-- Setup GoLang LSP
+lspconfig.gopls.setup({
+    cmd = { "gopls" },
+    settings = {
+        gopls = {
+            analyses = {
+                unusedparams = true,
+            },
+            staticcheck = true,
+        },
+    },
+})
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+    pattern = "*.go",
+    callback = function()
+        vim.lsp.buf.format({ async = true })
+    end,
+})
+-- End GoLang LSP
 
 vim.api.nvim_set_keymap('n', '<Leader>c', '<Plug>RestNvim', { noremap = false, silent = true })
 

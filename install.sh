@@ -45,6 +45,7 @@ install_brew_package zsh-autocomplete
 
 cp -R nvim/  ~/.config/nvim
 
+cp .zshenv ~/.zshenv
 cp .zshrc ~/.zshrc
 
 cp -R bin/ ~/bin
