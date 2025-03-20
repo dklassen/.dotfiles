@@ -42,5 +42,10 @@ install_brew_package fd
 echo "Installing neovim files"
 cp -R nvim/  ~/.config/nvim
 
+cp .zshrc ~/.zshrc
+
+cp -R bin/ ~/.bin
+
+
 
 
