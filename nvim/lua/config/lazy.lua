@@ -122,7 +122,10 @@ require("mason").setup({
 })
 
 require("mason-lspconfig").setup({
-    ensure_installed = { "ts_ls" }
+    ensure_installed = { 
+	    "ts_ls",
+	    "gopls"
+    }
 })
 
 local lspconfig = require("lspconfig")
