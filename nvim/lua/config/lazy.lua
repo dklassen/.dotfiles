@@ -125,7 +125,8 @@ require("mason-lspconfig").setup({
     ensure_installed = { 
 	    "ts_ls",
 	    "gopls"
-    }
+    },
+    automatic_installation = true,
 })
 
 local lspconfig = require("lspconfig")
