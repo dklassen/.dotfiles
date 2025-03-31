@@ -1,23 +1,26 @@
-source ~/.zshenv
-
+# Theme + plugins
 ZSH_THEME="robbyrussell"
+plugins=(git)
 
-# Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export EDITOR='nvim'
-fi
+# Init Oh My Zsh
+source "$ZSH/oh-my-zsh.sh"
 
-plugins=(git, zsh-autosuggestions)
+# FZF setup
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# Enable completion
+# Rust/Cargo
+source "$HOME/.cargo/env"
+
+# Autocomplete system
 autoload -U compinit
 compinit
 
-# Fix tilde expansion
+# Completion tweaks
 zstyle ':completion:*' expand 'yes'
 zstyle ':completion:*' tilde 'yes'
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|[-_]=**'
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Plugin loading — Brew-installed
+source $BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $BREW_PREFIX/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+source $BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh  # always last
